@@ -3,6 +3,7 @@ from typing_extensions import TypedDict
 from langflow.base.models.model import LCModelComponent
 from langflow.components.models.amazon_bedrock import AmazonBedrockComponent
 from langflow.components.models.deepseek import DeepSeekModelComponent
+from langflow.components.models.doubao import DoubaoModelComponent
 from langflow.components.models.anthropic import AnthropicModelComponent
 from langflow.components.models.azure_openai import AzureChatOpenAIComponent
 from langflow.components.models.google_generative_ai import GoogleGenerativeAIComponent
@@ -171,6 +172,16 @@ def _get_deepseek_inputs_and_fields():
         raise ImportError(msg) from e
     return deepseek_inputs, create_input_fields_dict(deepseek_inputs, "")
 
+def _get_doubao_inputs_and_fields():
+    try:
+        from langflow.components.models.doubao import DoubaoModelComponent
+
+        doubao_inputs = get_filtered_inputs(DoubaoModelComponent)
+    except ImportError as e:
+        msg = "Amazon Bedrock is not installed. Please install it with `pip install langchain-amazon-bedrock`."
+        raise ImportError(msg) from e
+    return doubao_inputs, create_input_fields_dict(doubao_inputs, "")
+
 
 MODEL_PROVIDERS_DICT: dict[str, ModelProvidersDict] = {}
 
@@ -280,6 +291,19 @@ try:
         "prefix": "",
         "component_class": DeepSeekModelComponent(),
         "icon": DeepSeekModelComponent.icon,
+    }
+except ImportError:
+    pass
+
+try:
+    doubao_inputs, doubao_fields = _get_doubao_inputs_and_fields()
+
+    MODEL_PROVIDERS_DICT["Doubao"] = {
+        "fields": doubao_fields,
+        "inputs": doubao_inputs,
+        "prefix": "",
+        "component_class": DoubaoModelComponent(),
+        "icon": DoubaoModelComponent.icon,
     }
 except ImportError:
     pass

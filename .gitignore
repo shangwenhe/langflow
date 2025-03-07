@@ -9,6 +9,7 @@ yarn-error.log*
 lerna-debug.log*
 qdrant_storage
 .env.local
+components/src/
 
 .dspy_cache
 # Mac

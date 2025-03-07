@@ -1,0 +1,2207 @@
+{
+  "id": "5571b448-26e7-448f-95cd-0a16b3ead612",
+  "tags": null,
+  "locked": false,
+  "gradient": null,
+  "folder_id": "1540171d-fd1a-4ea9-b9fc-61a4a0f02153",
+  "is_component": false,
+  "data": {
+    "nodes": [
+      {
+        "id": "ChatInput-mralf",
+        "type": "genericNode",
+        "position": {
+          "x": 604.2036697001205,
+          "y": 609.032329708384
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "files": {
+                "trace_as_metadata": true,
+                "file_path": "",
+                "fileTypes": [
+                  "txt",
+                  "md",
+                  "mdx",
+                  "csv",
+                  "json",
+                  "yaml",
+                  "yml",
+                  "xml",
+                  "html",
+                  "htm",
+                  "pdf",
+                  "docx",
+                  "py",
+                  "sh",
+                  "sql",
+                  "js",
+                  "ts",
+                  "tsx",
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "bmp",
+                  "image"
+                ],
+                "list": true,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "files",
+                "value": "",
+                "display_name": "Files",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Files to be sent with the message.",
+                "title_case": false,
+                "type": "file",
+                "_input_type": "FileInput"
+              },
+              "background_color": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "background_color",
+                "value": "",
+                "display_name": "Background Color",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The background color of the icon.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "chat_icon": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "chat_icon",
+                "value": "",
+                "display_name": "Icon",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The icon of the message.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.data.utils import IMG_FILE_TYPES, TEXT_FILE_TYPES\nfrom langflow.base.io.chat import ChatComponent\nfrom langflow.inputs import BoolInput\nfrom langflow.io import (\n    DropdownInput,\n    FileInput,\n    MessageTextInput,\n    MultilineInput,\n    Output,\n)\nfrom langflow.schema.message import Message\nfrom langflow.utils.constants import (\n    MESSAGE_SENDER_AI,\n    MESSAGE_SENDER_NAME_USER,\n    MESSAGE_SENDER_USER,\n)\n\n\nclass ChatInput(ChatComponent):\n    display_name = \"Chat Input\"\n    description = \"Get chat inputs from the Playground.\"\n    icon = \"MessagesSquare\"\n    name = \"ChatInput\"\n    minimized = True\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            value=\"\",\n            info=\"Message to be passed as input.\",\n            input_types=[],\n        ),\n        BoolInput(\n            name=\"should_store_message\",\n            display_name=\"Store Messages\",\n            info=\"Store the message in the history.\",\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],\n            value=MESSAGE_SENDER_USER,\n            info=\"Type of sender.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Name of the sender.\",\n            value=MESSAGE_SENDER_NAME_USER,\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            advanced=True,\n        ),\n        FileInput(\n            name=\"files\",\n            display_name=\"Files\",\n            file_types=TEXT_FILE_TYPES + IMG_FILE_TYPES,\n            info=\"Files to be sent with the message.\",\n            advanced=True,\n            is_list=True,\n        ),\n        MessageTextInput(\n            name=\"background_color\",\n            display_name=\"Background Color\",\n            info=\"The background color of the icon.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"chat_icon\",\n            display_name=\"Icon\",\n            info=\"The icon of the message.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_color\",\n            display_name=\"Text Color\",\n            info=\"The text color of the name\",\n            advanced=True,\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"message\", method=\"message_response\"),\n    ]\n\n    async def message_response(self) -> Message:\n        background_color = self.background_color\n        text_color = self.text_color\n        icon = self.chat_icon\n\n        message = await Message.create(\n            text=self.input_value,\n            sender=self.sender,\n            sender_name=self.sender_name,\n            session_id=self.session_id,\n            files=self.files,\n            properties={\n                \"background_color\": background_color,\n                \"text_color\": text_color,\n                \"icon\": icon,\n            },\n        )\n        if self.session_id and isinstance(message, Message) and self.should_store_message:\n            stored_message = await self.send_message(\n                message,\n            )\n            self.message.value = stored_message\n            message = stored_message\n\n        self.status = message\n        return message\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "\n- **角色**：你是一个资深的前端开发工程师，有10年的开发经验。\n\n- **要求约束**：尽可能使用示例模板内的格式生成代码。\n\n- **行动**：有一个创建APP的页面需要你帮忙完成一下。接口有如下数据\n\n  ```typescript\n  export interface IAppItem {\n    id: number;\n    name: string;\n    category: number;\n    orgId: number;\n    status: string;\n    description: string;\n    sandboxAppKeyInfo: string;\n    prodAppKeyInfo: string;\n    createTime: string;\n  }\n  ```\n\n  数据接口有\n  - 列表接口：/console/secured/app/list 参数 有 page,pagesize 两个。\n  - 创建接口：/console/secured/app/create 参数是 IAppItem\n  - 编辑接口：/console/secured/app/edit 参数是id 和 IAppItem\n  - 删除接口：/console/secured/app/{id} 参数是id \n\n- **码严格遵循以下设计原则**：\n  - MVVM架构模式：视图层与业务逻辑分离，通过Store管理状态\n  - 组件化设计：将搜索、表单等独立为可复用组件\n  - TypeScript类型支持：所有接口数据都有明确的类型定义\n  - 响应式状态管理：通过Pinia实现全局状态管理\n  - 分页处理：支持动态分页参数和搜索条件缓存\n  - 表单验证：使用ArcoDesign内置的验证机制\n  - 错误处理：统一的接口错误处理机制\n\n- **目标和结果**:帮忙生成 API、以及VUE状态管理。\n\n- **输出文件**\n  - src/views/user/index.vue\n  - src/store/modules/user/index.ts\n  - src/user/index.vue\n  - src/user/eidt.vue\n  - src/user/add.vue\n  - src/user/search.vue\n\n- **输出 json 格式**\n{\n\"files\": [\n    {\n        \"file\": \"./index.vue\",\n        \"content\": \"<template>index</template>\"\n    },\n    {\n        \"file\": \"./list.vue\",\n        \"content\": \"<template>list</template>\"\n    }\n]\n}",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [],
+                "dynamic": false,
+                "info": "Message to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              },
+              "sender": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "options": [
+                  "Machine",
+                  "User"
+                ],
+                "options_metadata": [],
+                "combobox": false,
+                "dialog_inputs": {},
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "sender",
+                "value": "User",
+                "display_name": "Sender Type",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Type of sender.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "DropdownInput"
+              },
+              "sender_name": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "sender_name",
+                "value": "User",
+                "display_name": "Sender Name",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Name of the sender.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "session_id": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "session_id",
+                "value": "",
+                "display_name": "Session ID",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "should_store_message": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "should_store_message",
+                "value": true,
+                "display_name": "Store Messages",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Store the message in the history.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "text_color": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "text_color",
+                "value": "",
+                "display_name": "Text Color",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The text color of the name",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              }
+            },
+            "description": "Get chat inputs from the Playground.",
+            "icon": "MessagesSquare",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "Chat Input",
+            "documentation": "",
+            "minimized": true,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "message",
+                "display_name": "Message",
+                "method": "message_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value",
+              "should_store_message",
+              "sender",
+              "sender_name",
+              "session_id",
+              "files",
+              "background_color",
+              "chat_icon",
+              "text_color"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": false,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "ChatInput",
+          "id": "ChatInput-mralf"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 229
+        },
+        "dragging": false
+      },
+      {
+        "id": "ChatOutput-OoOnj",
+        "type": "genericNode",
+        "position": {
+          "x": 2140.3865630979903,
+          "y": 1388.5541966594803
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "input_value": {
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": true,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Data",
+                  "DataFrame",
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Message to be passed as output.",
+                "title_case": false,
+                "type": "other",
+                "_input_type": "HandleInput"
+              },
+              "background_color": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "background_color",
+                "value": "",
+                "display_name": "Background Color",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The background color of the icon.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "chat_icon": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "chat_icon",
+                "value": "",
+                "display_name": "Icon",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The icon of the message.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "clean_data": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "clean_data",
+                "value": true,
+                "display_name": "Basic Clean Data",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Whether to clean the data",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from collections.abc import Generator\nfrom typing import Any\n\nfrom langflow.base.io.chat import ChatComponent\nfrom langflow.inputs import BoolInput\nfrom langflow.inputs.inputs import HandleInput\nfrom langflow.io import DropdownInput, MessageTextInput, Output\nfrom langflow.schema.data import Data\nfrom langflow.schema.dataframe import DataFrame\nfrom langflow.schema.message import Message\nfrom langflow.schema.properties import Source\nfrom langflow.utils.constants import (\n    MESSAGE_SENDER_AI,\n    MESSAGE_SENDER_NAME_AI,\n    MESSAGE_SENDER_USER,\n)\n\n\nclass ChatOutput(ChatComponent):\n    display_name = \"Chat Output\"\n    description = \"Display a chat message in the Playground.\"\n    icon = \"MessagesSquare\"\n    name = \"ChatOutput\"\n    minimized = True\n\n    inputs = [\n        HandleInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Message to be passed as output.\",\n            input_types=[\"Data\", \"DataFrame\", \"Message\"],\n            required=True,\n        ),\n        BoolInput(\n            name=\"should_store_message\",\n            display_name=\"Store Messages\",\n            info=\"Store the message in the history.\",\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],\n            value=MESSAGE_SENDER_AI,\n            advanced=True,\n            info=\"Type of sender.\",\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Name of the sender.\",\n            value=MESSAGE_SENDER_NAME_AI,\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"data_template\",\n            display_name=\"Data Template\",\n            value=\"{text}\",\n            advanced=True,\n            info=\"Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.\",\n        ),\n        MessageTextInput(\n            name=\"background_color\",\n            display_name=\"Background Color\",\n            info=\"The background color of the icon.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"chat_icon\",\n            display_name=\"Icon\",\n            info=\"The icon of the message.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_color\",\n            display_name=\"Text Color\",\n            info=\"The text color of the name\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"clean_data\",\n            display_name=\"Basic Clean Data\",\n            value=True,\n            info=\"Whether to clean the data\",\n            advanced=True,\n        ),\n    ]\n    outputs = [\n        Output(\n            display_name=\"Message\",\n            name=\"message\",\n            method=\"message_response\",\n        ),\n    ]\n\n    def _build_source(self, id_: str | None, display_name: str | None, source: str | None) -> Source:\n        source_dict = {}\n        if id_:\n            source_dict[\"id\"] = id_\n        if display_name:\n            source_dict[\"display_name\"] = display_name\n        if source:\n            # Handle case where source is a ChatOpenAI object\n            if hasattr(source, \"model_name\"):\n                source_dict[\"source\"] = source.model_name\n            elif hasattr(source, \"model\"):\n                source_dict[\"source\"] = str(source.model)\n            else:\n                source_dict[\"source\"] = str(source)\n        return Source(**source_dict)\n\n    async def message_response(self) -> Message:\n        # First convert the input to string if needed\n        text = self.convert_to_string()\n        # Get source properties\n        source, icon, display_name, source_id = self.get_properties_from_source_component()\n        background_color = self.background_color\n        text_color = self.text_color\n        if self.chat_icon:\n            icon = self.chat_icon\n\n        # Create or use existing Message object\n        if isinstance(self.input_value, Message):\n            message = self.input_value\n            # Update message properties\n            message.text = text\n        else:\n            message = Message(text=text)\n\n        # Set message properties\n        message.sender = self.sender\n        message.sender_name = self.sender_name\n        message.session_id = self.session_id\n        message.flow_id = self.graph.flow_id if hasattr(self, \"graph\") else None\n        message.properties.source = self._build_source(source_id, display_name, source)\n        message.properties.icon = icon\n        message.properties.background_color = background_color\n        message.properties.text_color = text_color\n\n        # Store message if needed\n        if self.session_id and self.should_store_message:\n            stored_message = await self.send_message(message)\n            self.message.value = stored_message\n            message = stored_message\n\n        self.status = message\n        return message\n\n    def _validate_input(self) -> None:\n        \"\"\"Validate the input data and raise ValueError if invalid.\"\"\"\n        if self.input_value is None:\n            msg = \"Input data cannot be None\"\n            raise ValueError(msg)\n        if isinstance(self.input_value, list) and not all(\n            isinstance(item, Message | Data | DataFrame | str) for item in self.input_value\n        ):\n            invalid_types = [\n                type(item).__name__\n                for item in self.input_value\n                if not isinstance(item, Message | Data | DataFrame | str)\n            ]\n            msg = f\"Expected Data or DataFrame or Message or str, got {invalid_types}\"\n            raise TypeError(msg)\n        if not isinstance(\n            self.input_value,\n            Message | Data | DataFrame | str | list | Generator | type(None),\n        ):\n            type_name = type(self.input_value).__name__\n            msg = f\"Expected Data or DataFrame or Message or str, Generator or None, got {type_name}\"\n            raise TypeError(msg)\n\n    def _safe_convert(self, data: Any) -> str:\n        \"\"\"Safely convert input data to string.\"\"\"\n        try:\n            if isinstance(data, str):\n                return data\n            if isinstance(data, Message):\n                return data.get_text()\n            if isinstance(data, Data):\n                if data.get_text() is None:\n                    msg = \"Empty Data object\"\n                    raise ValueError(msg)\n                return data.get_text()\n            if isinstance(data, DataFrame):\n                if self.clean_data:\n                    # Remove empty rows\n                    data = data.dropna(how=\"all\")\n                    # Remove empty lines in each cell\n                    data = data.replace(r\"^\\s*$\", \"\", regex=True)\n                    # Replace multiple newlines with a single newline\n                    data = data.replace(r\"\\n+\", \"\\n\", regex=True)\n                return (\n                    data.replace(r\"\\|\", r\"\\\\|\", regex=True)\n                    .applymap(lambda x: (str(x).replace(\"\\n\", \"<br/>\") if isinstance(x, str) else x))\n                    .to_markdown(index=False)\n                )\n            return str(data)\n        except (ValueError, TypeError, AttributeError) as e:\n            msg = f\"Error converting data: {e!s}\"\n            raise ValueError(msg) from e\n\n    def convert_to_string(self) -> str | Generator[Any, None, None]:\n        \"\"\"Convert input data to string with proper error handling.\"\"\"\n        self._validate_input()\n        if isinstance(self.input_value, list):\n            return \"\\n\".join([self._safe_convert(item) for item in self.input_value])\n        if isinstance(self.input_value, Generator):\n            return self.input_value\n        return self._safe_convert(self.input_value)\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "data_template": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "data_template",
+                "value": "{text}",
+                "display_name": "Data Template",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "sender": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "options": [
+                  "Machine",
+                  "User"
+                ],
+                "options_metadata": [],
+                "combobox": false,
+                "dialog_inputs": {},
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "sender",
+                "value": "Machine",
+                "display_name": "Sender Type",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Type of sender.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "DropdownInput"
+              },
+              "sender_name": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "sender_name",
+                "value": "AI",
+                "display_name": "Sender Name",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Name of the sender.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "session_id": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "session_id",
+                "value": "",
+                "display_name": "Session ID",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "should_store_message": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "should_store_message",
+                "value": true,
+                "display_name": "Store Messages",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Store the message in the history.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "text_color": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "text_color",
+                "value": "",
+                "display_name": "Text Color",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The text color of the name",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              }
+            },
+            "description": "Display a chat message in the Playground.",
+            "icon": "MessagesSquare",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "Chat Output",
+            "documentation": "",
+            "minimized": true,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "message",
+                "display_name": "Message",
+                "method": "message_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value",
+              "should_store_message",
+              "sender",
+              "sender_name",
+              "session_id",
+              "data_template",
+              "background_color",
+              "chat_icon",
+              "text_color",
+              "clean_data"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": false,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "ChatOutput",
+          "id": "ChatOutput-OoOnj"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 191
+        },
+        "dragging": false
+      },
+      {
+        "id": "TextInput-ji2YN",
+        "type": "genericNode",
+        "position": {
+          "x": -158.4664969651714,
+          "y": 850.6459591399368
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"接口示例\"\n    description = \"Get text inputs from the Playground.\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "**接口请求示例：**\n```typescript\n  /**\n   * filePath: src/api/sensitive-words.ts\n   * description: 定义数据接口，获取数据，并对数据进行增删改查\n   */\n  import axios from 'axios';\n  import type { HttpResponse } from './HttpResponse';\n  \n  const baseURL = '/console/secured/sensitiveWords';\n  \n  export interface ISensitiveWord {\n    type: 0 | 1;\n    word: string;\n    replaceWord?: string;\n    key?: string;\n    index?: number;\n  }\n  \n  export const getList = (params?: any): Promise<HttpResponse<ISensitiveWord[]>> => {\n    const url = `${baseURL}/getList`;\n    return axios.get(url, {\n      ...params,\n    });\n  };\n  \n  export const addWords = (data: ISensitiveWord[]): Promise<HttpResponse<any>> => {\n    const url = `${baseURL}/addWords`;\n    return axios.post(url, data);\n  };\n  \n  export const updateWords = (data: ISensitiveWord): Promise<HttpResponse<any>> => {\n    const url = `${baseURL}/updateWords`;\n    return axios.post(url, data);\n  };\n  \n  export const deleteWords = (data: string[]): Promise<HttpResponse<any>> => {\n    const url = `${baseURL}/deleteWords`;\n    return axios.post(url, data);\n  };\n```",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              }
+            },
+            "description": "Get text inputs from the Playground.",
+            "icon": "type",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "接口示例",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "TextInput",
+          "id": "TextInput-ji2YN"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 229
+        },
+        "dragging": false
+      },
+      {
+        "id": "TextInput-4n3yV",
+        "type": "genericNode",
+        "position": {
+          "x": -167.52773734000155,
+          "y": 1653.5052172046428
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"状态管理示例\"\n    description = \"Get text inputs from the Playground.\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "**Vue State 状态管理示例：**\n\n```typescript\n  /**\n   * filePath: src/store/modules/sensitive-words/index.ts\n   * description: 定义数据接口，获取数据，并对数据进行增删改查\n   */\n  import { defineStore } from 'pinia';\n  import { ISensitiveWords } from './types';\n  import { ISensitiveWord, getList, addWords, updateWords, deleteWords } from '@/api/sensitive-words';\n  \n  const useSensitiveWordsStore = defineStore('useSensitiveWordsStore', {\n    state: (): ISensitiveWords => {\n      return {\n        wordList: [],\n      };\n    },\n    actions: {\n      asyncList(params?: any) {\n        return getList(params).then(({ code, data }) => {\n          const result = [...data].reverse().map((item, key) => ({ ...item, key: item.word, index: key + 1 }));\n          this.wordList = result;\n          return result;\n        });\n      },\n      addWords(data: ISensitiveWord[]) {\n        return addWords(data).then((data) => {\n          this.asyncList();\n          return data;\n        });\n      },\n      updateWords(data: ISensitiveWord) {\n        return updateWords(data).then((data) => {\n          this.asyncList();\n          return data;\n        });\n      },\n      deleteWords(data: string[]) {\n        return deleteWords(data).then((data) => {\n          this.asyncList();\n          return data;\n        });\n      }\n    },\n  });\n  \n  export default useSensitiveWordsStore;\n  \n```",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              }
+            },
+            "description": "Get text inputs from the Playground.",
+            "icon": "type",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "状态管理示例",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "TextInput",
+          "id": "TextInput-4n3yV"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 229
+        },
+        "dragging": false
+      },
+      {
+        "id": "TextInput-APri4",
+        "type": "genericNode",
+        "position": {
+          "x": -160.69481532306588,
+          "y": 1106.089931643678
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"数据编辑示例\"\n    description = \"Get text inputs from the Playground.\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "**数据编辑弹窗示例**\n```vue\n<template>\n  <a-modal v-model:visible=\"visible\" modal-class=\"add-account-modal\" title-align=\"start\" @cancel=\"handleCancel\">\n    <template #title>{{ $t('user.editAccount.editAccount') }}</template>\n    <a-form ref=\"formRef\" :model=\"form\">\n      <a-form-item field=\"email\" :label=\"$t('user.editAccount.subAccountEmal')\" required :rules=\"[{ required: true, message: $t('user.editAccount.subAccountNotNull') }]\">\n        <a-input v-model=\"form.email\" :placeholder=\"$t('user.addAccount.subAccountPlaceholder')\" :disabled=\"true\" />\n      </a-form-item>\n      <a-form-item field=\"name\" :label=\"$t('user.editAccount.accountName')\" required :rules=\"[{ required: true, message: $t('user.editAccount.nameNotNull') }]\">\n        <a-input v-model=\"form.name\" :placeholder=\"$t('user.editAccount.fillAccountName')\" />\n      </a-form-item>\n      <a-form-item field=\"roleKeys\" :label=\"$t('user.table.role')\" required :rules=\"[{ required: true, message: $t('user.addAccount.roleNotNull') }]\">\n        <a-select v-model=\"form.roleKeys\" multiple allow-search :placeholder=\"$t('user.addAccount.selectRole')\" allow-clear>\n          <a-option v-for=\"role in roleList\" :key=\"role.roleKey\" :value=\"role.roleKey\">{{ role.name }}</a-option>\n        </a-select>\n      </a-form-item>\n      <a-form-item field=\"appKeys\" :label=\"$t('user.addAccount.application')\" required :rules=\"[{ required: true, message: $t('user.editAccount.applicationNotNull') }]\">\n        <a-select v-model=\"form.appKeys\" multiple allow-search :placeholder=\"$t('user.editAccount.selectApplication')\" @search=\"handleSearch\" allow-clear>\n          <a-option v-for=\"app in appOptionList\" :key=\"`${app.prodAppKey}-${app.testAppKey}`\" :value=\"`${app.prodAppKey ?? ''}${middleFix}${app.testAppKey ?? ''}`\">{{ app.name }}</a-option>\n        </a-select>\n      </a-form-item>\n    </a-form>\n    <template #footer>\n      <a-button type=\"secondary\" @click=\"handleCancel\">{{ $t('user.addAccount.cancel') }}</a-button>\n      <a-button type=\"primary\" :loading=\"loading\" @click=\"handleSubmit\">{{ $t('user.addAccount.submit') }}</a-button>\n    </template>\n  </a-modal>\n</template>\n<script lang=\"ts\" setup>\n  import { ISubAccount, IApp, IAddSubAccountParams, updateSlaveUser, IRole, getRoleList, getAssignableAppList } from '@/api/user';\n  import { Message } from '@arco-design/web-vue';\n  import { useI18n } from 'vue-i18n';\n  import { reactive, computed, ref, onMounted, watch } from 'vue';\n\n  const props = defineProps<{\n    visible: any;\n    accountInfo: ISubAccount;\n  }>();\n\n  const emits = defineEmits<{\n    (id: 'setVisible', value: boolean): void;\n    (id: 'reloadList'): void;\n  }>();\n\n  const middleFix = ':ID:ID:';\n  const visible = computed(() => props.visible);\n  const formRef = ref();\n  const loading = ref(false);\n  const form = reactive<IAddSubAccountParams>({\n    email: '',\n    name: '',\n    roleKeys: [],\n    appKeys: [],\n  });\n\n  const init = ref<number>(0);\n  watch(props.accountInfo, (accountInfo) => {\n    init.value = 0;\n    form.email = accountInfo.email;\n    form.name = accountInfo.name;\n    form.roleKeys = accountInfo?.roles?.map((role: IRole) => role.roleKey) || [];\n    form.appKeys = accountInfo?.apps?.map((app: IApp) => `${app.prodAppKey ?? ''}${middleFix}${app.testAppKey ?? ''}`) || [];\n  });\n\n  const roleList = ref<IRole[]>([]);\n  const appList = ref<IApp[]>([]);\n  const searchValue = ref<string>('');\n  const appOptionList = computed(() => {\n    const value = searchValue.value;\n    return appList.value.filter((item) => new RegExp(value).test(item.name) || new RegExp(value).test(item.prodAppKey) || new RegExp(value).test(item.testAppKey));\n  });\n\n  const roleKeys = computed(() => form.roleKeys);\n  watch(roleKeys, (currentValue, oldValue) => {\n    if (init.value > 0) {\n      form.appKeys = [];\n    }\n\n    if (currentValue && currentValue.length > 0) {\n      getAssignableAppList(currentValue).then(({ data }) => {\n        appList.value = data;\n        init.value += 1;\n      });\n      return;\n    }\n    appList.value = [];\n  });\n\n  onMounted(() => {\n    getRoleList().then(({ data }) => {\n      roleList.value = data;\n    });\n  });\n\n  const handleSearch = (value: string) => {\n    searchValue.value = value;\n  };\n\n  const { t } = useI18n();\n  const handleSubmit = () => {\n    loading.value = true;\n    formRef.value.validate().then((res: any) => {\n      if (!res) {\n        updateSlaveUser({\n          ...form,\n          userKey: props.accountInfo.userKey,\n          appKeys: form.appKeys.reduce((a, b) => a.concat(b.split(middleFix).filter((m) => !!m) as []), []),\n        })\n          .then(({ code }) => {\n            if (code === 10000) {\n              emits('setVisible', false);\n\n              Message.success(t('user.editAccount.accountUpdateSuccess', { email: form.name }));\n              emits('reloadList');\n              Object.assign(form, {\n                email: '',\n                name: '',\n                roleKeys: [],\n                appKeys: [],\n              });\n            }\n          })\n          .finally(() => {\n            loading.value = false;\n          });\n      } else {\n        emits('setVisible', true);\n        loading.value = false;\n      }\n    });\n  };\n  const handleCancel = () => {\n    emits('setVisible', false);\n  };\n</script>\n\n<script lang=\"ts\">\n  export default {\n    name: 'AddAccount',\n  };\n</script>\n<style lang=\"less\" scoped></style>\n```\n",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              }
+            },
+            "description": "Get text inputs from the Playground.",
+            "icon": "type",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "数据编辑示例",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "TextInput",
+          "id": "TextInput-APri4"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 229
+        },
+        "dragging": false
+      },
+      {
+        "id": "TextInput-5v3w4",
+        "type": "genericNode",
+        "position": {
+          "x": -154.352836319508,
+          "y": 564.3987083000076
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"数据创建弹窗示例\"\n    description = \"数据创建弹窗，表单中具有数据验证，以及调用提交\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "**数据创建弹窗示例**\n\n```vue\n<template>\n  <a-modal v-model:visible=\"visible\" modal-class=\"add-account-modal\" title-align=\"start\" @cancel=\"handleCancel\">\n    <template #title>{{ $t('user.addAccount.addAccount') }}</template>\n    <a-form ref=\"formRef\" :model=\"form\">\n      <a-form-item\n        field=\"email\"\n        :label=\"$t('user.addAccount.subAccountEmail')\"\n        required\n        :rules=\"[\n          { required: true, message: $t('user.addAccount.subAccountNotNull') },\n          { type: 'email', message: $t('user.addAccount.notLegalEmailAddress') },\n        ]\"\n      >\n        <a-input v-model=\"form.email\" :placeholder=\"$t('user.addAccount.subAccountNotNull')\" />\n      </a-form-item>\n      <a-form-item field=\"name\" :label=\"$t('user.table.accountName')\" required :rules=\"[{ required: true, message: $t('user.addAccount.nameNotNull') }]\">\n        <a-input v-model=\"form.name\" :placeholder=\"$t('user.addAccount.fillName')\" />\n      </a-form-item>\n      <a-form-item field=\"roleKeys\" :label=\"$t('user.addAccount.accountRole')\" required :rules=\"[{ required: true, message: $t('user.addAccount.roleNotNull') }]\">\n        <a-select v-model=\"form.roleKeys\" multiple allow-search :placeholder=\"$t('user.addAccount.selectRole')\" allow-clear>\n          <a-option v-for=\"role in roleList\" :key=\"role.roleKey\" :value=\"role.roleKey\">{{ role.name }}</a-option>\n        </a-select>\n      </a-form-item>\n      <a-form-item field=\"appKeys\" :label=\"$t('user.addAccount.application')\" required :rules=\"[{ required: true, message: $t('user.editAccount.applicationNotNull') }]\">\n        <a-select v-model=\"form.appKeys\" multiple allow-clear allow-search :placeholder=\"$t('user.addAccount.selectApplication')\" @change=\"selectChange\" @search=\"handleSearch\">\n          <a-option v-for=\"app in appOptionList\" :key=\"`${app.prodAppKey}-${app.testAppKey}`\" :disabled=\"app.disabled\" :value=\"`${app.prodAppKey ?? ''}${middleFix}${app.testAppKey ?? ''}`\">{{ app.name }}</a-option>\n        </a-select>\n      </a-form-item>\n    </a-form>\n    <template #footer>\n      <a-button type=\"secondary\" @click=\"handleCancel\">{{ $t('user.addAccount.cancel') }}</a-button>\n      <a-button type=\"primary\" :loading=\"loading\" @click=\"handleSubmit\">{{ $t('user.addAccount.submit') }}</a-button>\n    </template>\n  </a-modal>\n</template>\n<script lang=\"ts\" setup>\n  import { IApp, IAddSubAccountParams, addSubAccount, IRole, getRoleList, getAssignableAppList } from '@/api/user';\n  import { Message } from '@arco-design/web-vue';\n  import { useI18n } from 'vue-i18n';\n  import { reactive, computed, ref, onMounted, watch } from 'vue';\n\n  const props = defineProps<{\n    visible: any;\n  }>();\n\n  const emits = defineEmits<{\n    (id: 'setVisible', value: boolean): void;\n    (id: 'reloadList'): void;\n  }>();\n\n  const middleFix = ':ID:ID:';\n  const visible = computed(() => props.visible);\n  const formRef = ref();\n  const loading = ref(false);\n  const form = reactive<IAddSubAccountParams>({\n    email: '',\n    name: '',\n    roleKeys: [],\n    appKeys: [],\n  });\n\n  const roleList = ref<IRole[]>([]);\n\n  const appList = ref<IApp[]>([]);\n  const searchValue = ref<string>('');\n  const appOptionList = computed(() => {\n    const value = searchValue.value;\n    return appList.value.filter((item) => new RegExp(value).test(item.name) || new RegExp(value).test(item.prodAppKey) || new RegExp(value).test(item.testAppKey));\n  });\n\n  const roleKeys = computed(() => form.roleKeys);\n  watch(roleKeys, (currentValue, oldValue) => {\n    form.appKeys = [];\n    if (currentValue && currentValue.length > 0) {\n      getAssignableAppList(currentValue).then(({ data }) => {\n        appList.value = data;\n      });\n      return;\n    }\n    appList.value = [];\n  });\n\n  onMounted(() => {\n    getRoleList().then(({ data }) => {\n      roleList.value = data;\n    });\n  });\n\n  const handleSearch = (value: string) => {\n    searchValue.value = value;\n  };\n\n  const { t } = useI18n();\n\n  const handleSubmit = () => {\n    loading.value = true;\n    formRef.value.validate().then((res: any) => {\n      if (!res) {\n        addSubAccount({\n          ...form,\n          appKeys: form.appKeys.reduce((a, b) => a.concat(b.split(middleFix).filter((m) => !!m) as []), []),\n        })\n          .then(({ code }) => {\n            if (code === 10000) {\n              emits('setVisible', false);\n\n              Message.success(t('user.addAccount.addAccountSuccess', { email: form.email }));\n              emits('reloadList');\n              Object.assign(form, {\n                email: '',\n                name: '',\n                roleKeys: [],\n                appKeys: [],\n              });\n            }\n          })\n          .finally(() => {\n            loading.value = false;\n          });\n      } else {\n        emits('setVisible', true);\n        loading.value = false;\n      }\n    });\n  };\n  const handleCancel = () => {\n    emits('setVisible', false);\n  };\n  const selectChange = (value: any) => {\n    const allAppKey = 'z3v5yqkbvxnx0';\n    if (value.length < 2 && appList.value.length > 1) {\n      const selectOption = value[0] || '0';\n      const selectAll = new RegExp(allAppKey).test(selectOption);\n      appList.value = appList.value.slice().map((item) => {\n        let disabled = false;\n        if (value.length === 1) {\n          disabled = item.prodAppKey === allAppKey ? !selectAll : selectAll;\n        }\n        return {\n          ...item,\n          disabled,\n        };\n      });\n    }\n  };\n</script>\n\n<script lang=\"ts\">\n  export default {\n    name: 'AddAccount',\n  };\n</script>\n<style lang=\"less\" scoped></style>\n\n```",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              }
+            },
+            "description": "数据创建弹窗，表单中具有数据验证，以及调用提交",
+            "icon": "type",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "数据创建弹窗示例",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "TextInput",
+          "id": "TextInput-5v3w4"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 249
+        },
+        "dragging": false
+      },
+      {
+        "id": "TextInput-19SgI",
+        "type": "genericNode",
+        "position": {
+          "x": -158.3337426588727,
+          "y": 1368.410441597551
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"数据列表页示例\"\n    description = \"数据展示示例，且具有数据添加、数据删除、数据修改的按钮入口\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "**数据列表示例**\n```vue\n<template>\n  <div class=\"user-list-container\">\n    <a-card title=\"用户列表\" :extra=\"extraContent\">\n      <user-search @search=\"handleSearch\" @reset=\"handleReset\" />\n      <a-divider />\n      <a-button type=\"primary\" @click=\"showAddModal = true\">新增用户</a-button>\n      \n      <a-table\n        :columns=\"columns\"\n        :data-source=\"userList\"\n        :pagination=\"paginationConfig\"\n        @change=\"handleTableChange\"\n        row-key=\"id\"\n      >\n        <template #operation=\"{ record }\">\n          <a-space size=\"small\">\n            <a-button type=\"text\" @click=\"handleEdit(record)\">编辑</a-button>\n            <a-popconfirm title=\"确认删除?\" @ok=\"handleDelete(record.id)\">\n              <a-button type=\"text\" danger>删除</a-button>\n            </a-popconfirm>\n          </a-space>\n        </template>\n      </a-table>\n    </a-card>\n\n    <user-add\n      v-model:visible=\"showAddModal\"\n      @success=\"handleAddSuccess\"\n    />\n    \n    <user-edit\n      v-model:visible=\"showEditModal\"\n      :current-user=\"currentEditUser\"\n      @success=\"handleEditSuccess\"\n    />\n  </div>\n</template>\n\n<script setup>\nimport { computed, ref, watch } from 'vue';\nimport { useUserStore } from '@/store/modules/user';\nimport UserSearch from '@/views/user/search.vue';\nimport UserAdd from '@/views/user/add.vue';\nimport UserEdit from '@/views/user/edit.vue';\nimport { IUserItem } from '@/api/user';\n\nconst store = useUserStore();\nconst showAddModal = ref(false);\nconst showEditModal = ref(false);\nconst currentEditUser = ref<IUserItem>();\n\nconst columns = computed(() => [\n  { title: 'ID', dataIndex: 'id' },\n  { title: '姓名', dataIndex: 'name' },\n  { title: '年龄', dataIndex: 'age' },\n  { title: '组织ID', dataIndex: 'orgId' },\n  { title: '操作', slot: 'operation' }\n]);\n\nconst paginationConfig = computed(() => ({\n  current: store.currentPage,\n  pageSize: store.pageSize,\n  total: store.total,\n  showSizeChanger: true,\n  onShowSizeChange: (current, size) => {\n    store.currentPage = current;\n    store.pageSize = size;\n    store.fetchUserList();\n  }\n}));\n\n// 初始化加载\nwatch(store.currentPage, () => store.fetchUserList());\n\nconst handleSearch = (params) => {\n  // 实现搜索逻辑\n};\n\nconst handleReset = () => {\n  // 实现重置逻辑\n};\n\nconst handleTableChange = (pagination) => {\n  store.currentPage = pagination.current;\n  store.pageSize = pagination.pageSize;\n};\n\nconst handleAddSuccess = () => {\n  showAddModal.value = false;\n  store.fetchUserList();\n};\n\nconst handleEditSuccess = () => {\n  showEditModal.value = false;\n  store.fetchUserList();\n};\n\nconst handleEdit = (record: IUserItem) => {\n  currentEditUser.value = record;\n  showEditModal.value = true;\n};\n\nconst handleDelete = (id: number) => {\n  store.removeUser(id);\n};\n</script>\n```\n\n",
+                "display_name": "Text",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              }
+            },
+            "description": "数据展示示例，且具有数据添加、数据删除、数据修改的按钮入口",
+            "icon": "type",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "数据列表页示例",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "TextInput",
+          "id": "TextInput-19SgI"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 249
+        },
+        "dragging": false
+      },
+      {
+        "id": "Prompt-Vo527",
+        "type": "genericNode",
+        "position": {
+          "x": 603.7232132921496,
+          "y": 904.8396161845088
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.prompts.api_utils import process_prompt_template\nfrom langflow.custom import Component\nfrom langflow.inputs.inputs import DefaultPromptField\nfrom langflow.io import MessageTextInput, Output, PromptInput\nfrom langflow.schema.message import Message\nfrom langflow.template.utils import update_template_values\n\n\nclass PromptComponent(Component):\n    display_name: str = \"Prompt\"\n    description: str = \"Create a prompt template with dynamic variables.\"\n    icon = \"prompts\"\n    trace_type = \"prompt\"\n    name = \"Prompt\"\n\n    inputs = [\n        PromptInput(name=\"template\", display_name=\"Template\"),\n        MessageTextInput(\n            name=\"tool_placeholder\",\n            display_name=\"Tool Placeholder\",\n            tool_mode=True,\n            advanced=True,\n            info=\"A placeholder input for tool mode.\",\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Prompt Message\", name=\"prompt\", method=\"build_prompt\"),\n    ]\n\n    async def build_prompt(self) -> Message:\n        prompt = Message.from_template(**self._attributes)\n        self.status = prompt.text\n        return prompt\n\n    def _update_template(self, frontend_node: dict):\n        prompt_template = frontend_node[\"template\"][\"template\"][\"value\"]\n        custom_fields = frontend_node[\"custom_fields\"]\n        frontend_node_template = frontend_node[\"template\"]\n        _ = process_prompt_template(\n            template=prompt_template,\n            name=\"template\",\n            custom_fields=custom_fields,\n            frontend_node_template=frontend_node_template,\n        )\n        return frontend_node\n\n    async def update_frontend_node(self, new_frontend_node: dict, current_frontend_node: dict):\n        \"\"\"This function is called after the code validation is done.\"\"\"\n        frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)\n        template = frontend_node[\"template\"][\"template\"][\"value\"]\n        # Kept it duplicated for backwards compatibility\n        _ = process_prompt_template(\n            template=template,\n            name=\"template\",\n            custom_fields=frontend_node[\"custom_fields\"],\n            frontend_node_template=frontend_node[\"template\"],\n        )\n        # Now that template is updated, we need to grab any values that were set in the current_frontend_node\n        # and update the frontend_node with those values\n        update_template_values(new_template=frontend_node, previous_template=current_frontend_node[\"template\"])\n        return frontend_node\n\n    def _get_fallback_input(self, **kwargs):\n        return DefaultPromptField(**kwargs)\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "template": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "template",
+                "value": "## 以下是所有的样板示例:\n\n{api}\n\n{state}\n\n{add}\n\n{edit} \n\n{list} \n",
+                "display_name": "Template",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "prompt",
+                "_input_type": "PromptInput"
+              },
+              "tool_placeholder": {
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "tool_placeholder",
+                "value": "",
+                "display_name": "Tool Placeholder",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "A placeholder input for tool mode.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "api": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "api",
+                "display_name": "api",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              },
+              "state": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "state",
+                "display_name": "state",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              },
+              "list": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "list",
+                "display_name": "list",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              },
+              "edit": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "edit",
+                "display_name": "edit",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              },
+              "add": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "add",
+                "display_name": "add",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              }
+            },
+            "description": "Create a prompt template with dynamic variables.",
+            "icon": "prompts",
+            "is_input": null,
+            "is_output": null,
+            "is_composition": null,
+            "base_classes": [
+              "Message"
+            ],
+            "name": "",
+            "display_name": "Prompt",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {
+              "template": [
+                "api",
+                "state",
+                "add",
+                "edit",
+                "list"
+              ]
+            },
+            "output_types": [],
+            "full_path": null,
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "prompt",
+                "hidden": null,
+                "display_name": "Prompt Message",
+                "method": "build_prompt",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "template",
+              "tool_placeholder"
+            ],
+            "beta": false,
+            "legacy": false,
+            "error": null,
+            "edited": false,
+            "metadata": {},
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "Prompt",
+          "id": "Prompt-Vo527"
+        },
+        "selected": true,
+        "measured": {
+          "width": 320,
+          "height": 665
+        },
+        "dragging": false
+      },
+      {
+        "id": "JSONCleaner-UorZj",
+        "type": "genericNode",
+        "position": {
+          "x": 1729.1932909671334,
+          "y": 1175.2727184928503
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "import json\nimport os\nimport unicodedata\n\nfrom langflow.custom import Component\nfrom langflow.inputs import BoolInput, MessageTextInput\nfrom langflow.schema.message import Message\nfrom langflow.template import Output\n\n\nclass SaveFilesComponent(Component):\n    display_name = \"Save to Files\"\n    description = \"将输出的JSON格式存在到文件中\"\n    icon = \"save\"\n    name = \"SaveToFile\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"json_str\", display_name=\"JSON String\", info=\"The JSON string to be cleaned.\", required=True\n        ),\n        BoolInput(\n            name=\"remove_control_chars\",\n            display_name=\"Remove Control Characters\",\n            info=\"Remove control characters from the JSON string.\",\n            required=False,\n        ),\n        BoolInput(\n            name=\"normalize_unicode\",\n            display_name=\"Normalize Unicode\",\n            info=\"Normalize Unicode characters in the JSON string.\",\n            required=False,\n        ),\n        BoolInput(\n            name=\"validate_json\",\n            display_name=\"Validate JSON\",\n            info=\"Validate the JSON string to ensure it is well-formed.\",\n            required=False,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Cleaned JSON String\", name=\"output\", method=\"clean_json\"),\n    ]\n\n    def clean_json(self) -> Message:\n        try:\n            from json_repair import repair_json\n        except ImportError as e:\n            msg = \"Could not import the json_repair package. Please install it with `pip install json_repair`.\"\n            raise ImportError(msg) from e\n\n        \"\"\"Clean the input JSON string based on provided options and return the cleaned JSON string.\"\"\"\n        json_str = self.json_str\n        remove_control_chars = self.remove_control_chars\n        normalize_unicode = self.normalize_unicode\n        validate_json = self.validate_json\n\n        start = json_str.find(\"{\")\n        end = json_str.rfind(\"}\")\n        if start == -1 or end == -1:\n            msg = \"Invalid JSON string: Missing '{' or '}'\"\n            raise ValueError(msg)\n        try:\n            json_str = json_str[start : end + 1]\n\n            if remove_control_chars:\n                json_str = self._remove_control_characters(json_str)\n            if normalize_unicode:\n                json_str = self._normalize_unicode(json_str)\n            if validate_json:\n                json_str = self._validate_json(json_str)\n\n            cleaned_json_str = repair_json(json_str)\n            result = str(cleaned_json_str)\n            \n            data = json.loads(result)\n            print(data)\n            # self._save_files(data)\n            \n            \n            # 指定保存文件的目录\n            base_dir = '/app/data/components/'\n            # 确保目录存在，如果不存在则创建\n            os.makedirs(base_dir, exist_ok=True)\n        \n            for item in data.get('files'):\n                # 获取文件名\n                file_path = item.get('file')\n                # 获取文件内容\n                content = item.get('content')\n        \n                if file_path and content:\n                    # 提取文件名\n                    file_name = os.path.basename(file_path)\n                    # 提取文件路径中的目录部分\n                    relative_dir = os.path.dirname(file_path)\n                    # 拼接完整的保存目录\n                    save_dir = os.path.join(base_dir, relative_dir.strip('./'))\n                    # 确保保存目录存在，如果不存在则创建\n                    os.makedirs(save_dir, exist_ok=True)\n                    # 拼接完整的文件保存路径\n                    full_path = os.path.join(save_dir, file_name)\n        \n                    try:\n                        with open(full_path, 'w', encoding='utf-8') as file:\n                            file.write(content)\n                        print(f\"成功保存文件: {full_path}\")\n                    except Exception as e:\n                        print(f\"保存文件 {full_path} 时出错: {e}\")\n            \n            \n            \n            \n\n            self.status = result\n            return Message(text=result)\n        except Exception as e:\n            msg = f\"Error cleaning JSON string: {e}\"\n            raise ValueError(msg) from e\n\n    def _save_files(data):\n        # 指定保存文件的目录\n        base_dir = '/app/data/components/'\n        # 确保目录存在，如果不存在则创建\n        os.makedirs(base_dir, exist_ok=True)\n    \n        for item in data:\n            # 获取文件名\n            file_path = item.get('file')\n            # 获取文件内容\n            content = item.get('content')\n    \n            if file_path and content:\n                # 拼接完整的文件路径\n                full_path = os.path.join(base_dir, os.path.basename(file_path))\n                try:\n                    # 以写入模式打开文件\n                    with open(full_path, 'w', encoding='utf-8') as file:\n                        # 将内容写入文件\n                        file.write(content)\n                    print(f\"成功保存文件: {full_path}\")\n                except Exception as e:\n                    print(f\"保存文件 {full_path} 时出错: {e}\")\n\n    def _remove_control_characters(self, s: str) -> str:\n        \"\"\"Remove control characters from the string.\"\"\"\n        return s.translate(self.translation_table)\n\n    def _normalize_unicode(self, s: str) -> str:\n        \"\"\"Normalize Unicode characters in the string.\"\"\"\n        return unicodedata.normalize(\"NFC\", s)\n\n    def _validate_json(self, s: str) -> str:\n        \"\"\"Validate the JSON string.\"\"\"\n        try:\n            json.loads(s)\n        except json.JSONDecodeError as e:\n            msg = f\"Invalid JSON string: {e}\"\n            raise ValueError(msg) from e\n        return s\n\n    def __init__(self, *args, **kwargs):\n        # Create a translation table that maps control characters to None\n        super().__init__(*args, **kwargs)\n        self.translation_table = str.maketrans(\"\", \"\", \"\".join(chr(i) for i in range(32)) + chr(127))\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "json_str": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": true,
+                "placeholder": "",
+                "show": true,
+                "name": "json_str",
+                "value": "",
+                "display_name": "JSON String",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The JSON string to be cleaned.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "normalize_unicode": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "normalize_unicode",
+                "value": false,
+                "display_name": "Normalize Unicode",
+                "advanced": false,
+                "dynamic": false,
+                "info": "Normalize Unicode characters in the JSON string.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "remove_control_chars": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "remove_control_chars",
+                "value": false,
+                "display_name": "Remove Control Characters",
+                "advanced": false,
+                "dynamic": false,
+                "info": "Remove control characters from the JSON string.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "validate_json": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "validate_json",
+                "value": false,
+                "display_name": "Validate JSON",
+                "advanced": false,
+                "dynamic": false,
+                "info": "Validate the JSON string to ensure it is well-formed.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              }
+            },
+            "description": "将输出的JSON格式存在到文件中",
+            "icon": "save",
+            "base_classes": [
+              "Message"
+            ],
+            "display_name": "Save to Files",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "output",
+                "hidden": null,
+                "display_name": "Cleaned JSON String",
+                "method": "clean_json",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "json_str",
+              "remove_control_chars",
+              "normalize_unicode",
+              "validate_json"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "SaveToFile",
+          "id": "JSONCleaner-UorZj"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 355
+        },
+        "dragging": false
+      },
+      {
+        "id": "OpenAIModel-hSHAT",
+        "type": "genericNode",
+        "position": {
+          "x": 1216.2901735863145,
+          "y": 797.5704267725833
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "api_key": {
+                "load_from_db": false,
+                "required": true,
+                "placeholder": "",
+                "show": true,
+                "name": "api_key",
+                "value": "87185887-b74b-42ca-adb2-3457c19b5dd3",
+                "display_name": "OpenAI API Key",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The OpenAI API Key to use for the OpenAI model.",
+                "title_case": false,
+                "password": true,
+                "type": "str",
+                "_input_type": "SecretStrInput"
+              },
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langchain_openai import ChatOpenAI\nfrom pydantic.v1 import SecretStr\n\nfrom langflow.base.models.model import LCModelComponent\nfrom langflow.base.models.openai_constants import OPENAI_MODEL_NAMES\nfrom langflow.field_typing import LanguageModel\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.inputs import BoolInput, DictInput, DropdownInput, IntInput, SecretStrInput, SliderInput, StrInput\n\n\nclass OpenAIModelComponent(LCModelComponent):\n    display_name = \"Doubao AI\"\n    description = \"Generates text using OpenAI LLMs.\"\n    icon = \"OpenAI\"\n    name = \"OpenAIModel\"\n\n    inputs = [\n        *LCModelComponent._base_inputs,\n        IntInput(\n            name=\"max_tokens\",\n            display_name=\"Max Tokens\",\n            advanced=True,\n            info=\"The maximum number of tokens to generate. Set to 0 for unlimited tokens.\",\n            range_spec=RangeSpec(min=0, max=128000),\n        ),\n        DictInput(\n            name=\"model_kwargs\",\n            display_name=\"Model Kwargs\",\n            advanced=True,\n            info=\"Additional keyword arguments to pass to the model.\",\n        ),\n        BoolInput(\n            name=\"json_mode\",\n            display_name=\"JSON Mode\",\n            advanced=True,\n            info=\"If True, it will output JSON regardless of passing a schema.\",\n        ),\n        DropdownInput(\n            name=\"model_name\",\n            display_name=\"Model Name\",\n            advanced=False,\n            options=[\"deepseek-v3-241226\"],\n            value=\"deepseek-v3-241226\",\n        ),\n        StrInput(\n            name=\"openai_api_base\",\n            display_name=\"OpenAI API Base\",\n            advanced=True,\n            value=\"https://ark.cn-beijing.volces.com/api/v3\",\n            info=\"The base URL of the OpenAI API. \"\n            \"Defaults to https://api.openai.com/v1. \"\n            \"You can change this to use other APIs like JinaChat, LocalAI and Prem.\",\n        ),\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"OpenAI API Key\",\n            info=\"The OpenAI API Key to use for the OpenAI model.\",\n            value=\"87185887-b74b-42ca-adb2-3457c19b5dd3\",\n            advanced=False,\n            required=True,\n        ),\n        SliderInput(\n            name=\"temperature\", display_name=\"Temperature\", value=0.1, range_spec=RangeSpec(min=0, max=1, step=0.01)\n        ),\n        IntInput(\n            name=\"seed\",\n            display_name=\"Seed\",\n            info=\"The seed controls the reproducibility of the job.\",\n            advanced=True,\n            value=1,\n        ),\n        IntInput(\n            name=\"max_retries\",\n            display_name=\"Max Retries\",\n            info=\"The maximum number of retries to make when generating.\",\n            advanced=True,\n            value=5,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=\"Timeout\",\n            info=\"The timeout for requests to OpenAI completion API.\",\n            advanced=True,\n            value=700,\n        ),\n    ]\n\n    def build_model(self) -> LanguageModel:  # type: ignore[type-var]\n        openai_api_key = self.api_key\n        temperature = self.temperature\n        model_name: str = self.model_name\n        max_tokens = self.max_tokens\n        model_kwargs = self.model_kwargs or {}\n        openai_api_base = self.openai_api_base or \"https://api.openai.com/v1\"\n        json_mode = self.json_mode\n        seed = self.seed\n        max_retries = self.max_retries\n        timeout = self.timeout\n\n        api_key = SecretStr(openai_api_key).get_secret_value() if openai_api_key else None\n        output = ChatOpenAI(\n            max_tokens=max_tokens or None,\n            model_kwargs=model_kwargs,\n            model=model_name,\n            base_url=openai_api_base,\n            api_key=api_key,\n            temperature=temperature if temperature is not None else 0.1,\n            seed=seed,\n            max_retries=max_retries,\n            request_timeout=timeout,\n        )\n        if json_mode:\n            output = output.bind(response_format={\"type\": \"json_object\"})\n\n        return output\n\n    def _get_exception_message(self, e: Exception):\n        \"\"\"Get a message from an OpenAI exception.\n\n        Args:\n            e (Exception): The exception to get the message from.\n\n        Returns:\n            str: The message from the exception.\n        \"\"\"\n        try:\n            from openai import BadRequestError\n        except ImportError:\n            return None\n        if isinstance(e, BadRequestError):\n            message = e.body.get(\"message\")\n            if message:\n                return message\n        return None\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "trace_as_input": true,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "",
+                "display_name": "Input",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageInput"
+              },
+              "json_mode": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "json_mode",
+                "value": true,
+                "display_name": "JSON Mode",
+                "advanced": true,
+                "dynamic": false,
+                "info": "If True, it will output JSON regardless of passing a schema.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput",
+                "load_from_db": false
+              },
+              "max_retries": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "max_retries",
+                "value": 5,
+                "display_name": "Max Retries",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The maximum number of retries to make when generating.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "max_tokens": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "range_spec": {
+                  "step_type": "float",
+                  "min": 0,
+                  "max": 128000,
+                  "step": 0.1
+                },
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "max_tokens",
+                "value": "",
+                "display_name": "Max Tokens",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "model_kwargs": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "model_kwargs",
+                "value": {},
+                "display_name": "Model Kwargs",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Additional keyword arguments to pass to the model.",
+                "title_case": false,
+                "type": "dict",
+                "_input_type": "DictInput"
+              },
+              "model_name": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "options": [
+                  "deepseek-v3-241226"
+                ],
+                "options_metadata": [],
+                "combobox": false,
+                "dialog_inputs": {},
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "model_name",
+                "value": "deepseek-v3-241226",
+                "display_name": "Model Name",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "DropdownInput"
+              },
+              "openai_api_base": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "openai_api_base",
+                "value": "https://ark.cn-beijing.volces.com/api/v3",
+                "display_name": "OpenAI API Base",
+                "advanced": false,
+                "dynamic": false,
+                "info": "The base URL of the OpenAI API. Defaults to https://api.openai.com/v1. You can change this to use other APIs like JinaChat, LocalAI and Prem.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "StrInput"
+              },
+              "seed": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "seed",
+                "value": 1,
+                "display_name": "Seed",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The seed controls the reproducibility of the job.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "stream": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "stream",
+                "value": false,
+                "display_name": "Stream",
+                "advanced": false,
+                "dynamic": false,
+                "info": "Stream the response from the model. Streaming works only in Chat.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "system_message": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "system_message",
+                "value": "",
+                "display_name": "System Message",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "System message to pass to the model.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              },
+              "temperature": {
+                "tool_mode": false,
+                "min_label": "",
+                "max_label": "",
+                "min_label_icon": "",
+                "max_label_icon": "",
+                "slider_buttons": false,
+                "slider_buttons_options": [],
+                "slider_input": false,
+                "range_spec": {
+                  "step_type": "float",
+                  "min": 0,
+                  "max": 1,
+                  "step": 0.01
+                },
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "temperature",
+                "value": 0.5,
+                "display_name": "Temperature",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "slider",
+                "_input_type": "SliderInput",
+                "load_from_db": false
+              },
+              "timeout": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "timeout",
+                "value": 700,
+                "display_name": "Timeout",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The timeout for requests to OpenAI completion API.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              }
+            },
+            "description": "Generates text using OpenAI LLMs.",
+            "icon": "OpenAI",
+            "base_classes": [
+              "LanguageModel",
+              "Message"
+            ],
+            "display_name": "Doubao AI",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text_output",
+                "hidden": null,
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": [],
+                "allows_loop": false,
+                "tool_mode": true
+              },
+              {
+                "types": [
+                  "LanguageModel"
+                ],
+                "selected": "LanguageModel",
+                "name": "model_output",
+                "hidden": null,
+                "display_name": "Language Model",
+                "method": "build_model",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": [
+                  "api_key"
+                ],
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value",
+              "system_message",
+              "stream",
+              "max_tokens",
+              "model_kwargs",
+              "json_mode",
+              "model_name",
+              "openai_api_base",
+              "api_key",
+              "temperature",
+              "seed",
+              "max_retries",
+              "timeout"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": true,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "OpenAIModel",
+          "id": "OpenAIModel-hSHAT"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 735
+        },
+        "dragging": false
+      }
+    ],
+    "edges": [
+      {
+        "source": "TextInput-ji2YN",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-ji2YNœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt-Vo527",
+        "targetHandle": "{œfieldNameœ:œapiœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "api",
+            "id": "Prompt-Vo527",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-ji2YN",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__TextInput-ji2YN{œdataTypeœ:œTextInputœ,œidœ:œTextInput-ji2YNœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-Prompt-Vo527{œfieldNameœ:œapiœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "TextInput-5v3w4",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-5v3w4œ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt-Vo527",
+        "targetHandle": "{œfieldNameœ:œaddœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "add",
+            "id": "Prompt-Vo527",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-5v3w4",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__TextInput-5v3w4{œdataTypeœ:œTextInputœ,œidœ:œTextInput-5v3w4œ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-Prompt-Vo527{œfieldNameœ:œaddœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "TextInput-APri4",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-APri4œ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt-Vo527",
+        "targetHandle": "{œfieldNameœ:œeditœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "edit",
+            "id": "Prompt-Vo527",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-APri4",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__TextInput-APri4{œdataTypeœ:œTextInputœ,œidœ:œTextInput-APri4œ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-Prompt-Vo527{œfieldNameœ:œeditœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "TextInput-19SgI",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-19SgIœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt-Vo527",
+        "targetHandle": "{œfieldNameœ:œlistœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "list",
+            "id": "Prompt-Vo527",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-19SgI",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__TextInput-19SgI{œdataTypeœ:œTextInputœ,œidœ:œTextInput-19SgIœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-Prompt-Vo527{œfieldNameœ:œlistœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "TextInput-4n3yV",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-4n3yVœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt-Vo527",
+        "targetHandle": "{œfieldNameœ:œstateœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "state",
+            "id": "Prompt-Vo527",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-4n3yV",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__TextInput-4n3yV{œdataTypeœ:œTextInputœ,œidœ:œTextInput-4n3yVœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-Prompt-Vo527{œfieldNameœ:œstateœ,œidœ:œPrompt-Vo527œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "ChatInput-mralf",
+        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-mralfœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "OpenAIModel-hSHAT",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œOpenAIModel-hSHATœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "OpenAIModel-hSHAT",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "ChatInput",
+            "id": "ChatInput-mralf",
+            "name": "message",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__ChatInput-mralf{œdataTypeœ:œChatInputœ,œidœ:œChatInput-mralfœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-OpenAIModel-hSHAT{œfieldNameœ:œinput_valueœ,œidœ:œOpenAIModel-hSHATœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "Prompt-Vo527",
+        "sourceHandle": "{œdataTypeœ:œPromptœ,œidœ:œPrompt-Vo527œ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "OpenAIModel-hSHAT",
+        "targetHandle": "{œfieldNameœ:œsystem_messageœ,œidœ:œOpenAIModel-hSHATœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "system_message",
+            "id": "OpenAIModel-hSHAT",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "Prompt",
+            "id": "Prompt-Vo527",
+            "name": "prompt",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__Prompt-Vo527{œdataTypeœ:œPromptœ,œidœ:œPrompt-Vo527œ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}-OpenAIModel-hSHAT{œfieldNameœ:œsystem_messageœ,œidœ:œOpenAIModel-hSHATœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "OpenAIModel-hSHAT",
+        "sourceHandle": "{œdataTypeœ:œOpenAIModelœ,œidœ:œOpenAIModel-hSHATœ,œnameœ:œtext_outputœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "JSONCleaner-UorZj",
+        "targetHandle": "{œfieldNameœ:œjson_strœ,œidœ:œJSONCleaner-UorZjœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "json_str",
+            "id": "JSONCleaner-UorZj",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "OpenAIModel",
+            "id": "OpenAIModel-hSHAT",
+            "name": "text_output",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__OpenAIModel-hSHAT{œdataTypeœ:œOpenAIModelœ,œidœ:œOpenAIModel-hSHATœ,œnameœ:œtext_outputœ,œoutput_typesœ:[œMessageœ]}-JSONCleaner-UorZj{œfieldNameœ:œjson_strœ,œidœ:œJSONCleaner-UorZjœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": "",
+        "selected": false
+      },
+      {
+        "source": "JSONCleaner-UorZj",
+        "sourceHandle": "{œdataTypeœ:œSaveToFileœ,œidœ:œJSONCleaner-UorZjœ,œnameœ:œoutputœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "ChatOutput-OoOnj",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-OoOnjœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œotherœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "ChatOutput-OoOnj",
+            "inputTypes": [
+              "Data",
+              "DataFrame",
+              "Message"
+            ],
+            "type": "other"
+          },
+          "sourceHandle": {
+            "dataType": "SaveToFile",
+            "id": "JSONCleaner-UorZj",
+            "name": "output",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__JSONCleaner-UorZj{œdataTypeœ:œSaveToFileœ,œidœ:œJSONCleaner-UorZjœ,œnameœ:œoutputœ,œoutput_typesœ:[œMessageœ]}-ChatOutput-OoOnj{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-OoOnjœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œotherœ}",
+        "className": "",
+        "selected": false
+      }
+    ],
+    "viewport": {
+      "x": 169.58988827680196,
+      "y": -240.5404035677028,
+      "zoom": 0.5673355065880962
+    }
+  },
+  "updated_at": "2025-03-07T08:45:04+00:00",
+  "icon": null,
+  "name": "DoubaoChat",
+  "description": "Your Hub for Text Generation.",
+  "icon_bg_color": null,
+  "webhook": false,
+  "user_id": "a08ffcc9-337d-4975-b655-e031e3c28e32",
+  "endpoint_name": null
+}
